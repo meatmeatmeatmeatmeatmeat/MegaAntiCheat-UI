@@ -226,12 +226,16 @@ const Preferences = () => {
               <div className="preference-title">{t('PREF_STEAM_API_KEY')}</div>
               <TextInput
                 type={steamApiKeyRevealed ? 'input' : 'password'}
-                value={settings?.internal.steamApiKey}
-                onChange={(e) =>
+                defaultValue={settings?.internal.steamApiKey}
+                onLeave={(e) =>
                   handleSettingChange('steamApiKey', e, 'internal')
                 }
+                withIcon
               />
-              <div onClick={() => setSteamApiKeyRevealed(!steamApiKeyRevealed)}>
+              <div
+                className="flex items-center"
+                onClick={() => setSteamApiKeyRevealed(!steamApiKeyRevealed)}
+              >
                 {steamApiKeyRevealed ? (
                   <EyeOff
                     width={24}
@@ -251,12 +255,16 @@ const Preferences = () => {
               <div className="preference-title">{t('PREF_RCON_PASSWORD')}</div>
               <TextInput
                 type={rconRevealed ? 'input' : 'password'}
-                value={settings?.internal.rconPassword}
-                onChange={(e) =>
+                defaultValue={settings?.internal.rconPassword}
+                onLeave={(e) =>
                   handleSettingChange('rconPassword', e, 'internal')
                 }
+                withIcon
               />
-              <div onClick={() => setRconRevealed(!rconRevealed)}>
+              <div
+                className="flex items-center"
+                onClick={() => setRconRevealed(!rconRevealed)}
+              >
                 {rconRevealed ? (
                   <EyeOff
                     width={24}
