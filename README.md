@@ -20,6 +20,8 @@ Clone this repository and run the following commands in the projects root folder
 pnpm i
 pnpm run dev
 ```
+TODO show recent VAC bans in a different color (red for less than 30 days, yellow for less than 365 days)
+TODO show amount of cheater/watched/sus friends under kills + deaths in panel
 
 ## Tech-stack
 
