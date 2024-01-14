@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './Player.css';
 
 import { t } from '@i18n';
@@ -21,6 +21,9 @@ import { kickPlayer } from '@api/commands';
 import { Info } from 'lucide-react';
 import { useModal } from '../../../Context';
 import ChangeAliasModal from './Modals/ChangeAliasModal';
+import { readFromMcd } from '@components/TF2/Player/mcd_reader';
+import { nodes } from '@components/TF2/Player/mcdb';
+import JSON5 from 'json5';
 
 interface PlayerProps {
   player: PlayerInfo;
@@ -52,10 +55,85 @@ const Player = ({
   const [playtime, setPlaytime] = React.useState(0);
   const [pfp, setPfp] = React.useState<string>('./person.webp');
   const [showPlayerDetails, setShowPlayerDetails] = React.useState(false);
+  // TODO make mcd a global state
+  const [mcd, setMcd] = React.useState(nodes);
+  useEffect(() => {
+    // console.log('mcd updated');
+  }, [mcd]);
+  useEffect(() => {
+    // Update mcd
+    const fetchData = async () => {
+      const proxyUrl = 'https://corsproxy.io/?';
+      const targetUrl = 'https://megascatterbomb.com/mcd';
+
+      const fetchHTML = async (url: string): Promise<string> => {
+        try {
+          const response = await fetch(proxyUrl + url);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return await response.text();
+        } catch (error) {
+          console.error('Error:', error);
+          throw error;
+        }
+      };
+
+      const processHTML = async (htmlString: string) => {
+        try {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(htmlString, 'text/html');
+
+          const scriptTags = doc.getElementsByTagName('script');
+
+          for (let i = 0; i < scriptTags.length; i++) {
+            // console.log(scriptTags[i].textContent);
+            const id = 'var nodes = new vis.DataSet(';
+            if (scriptTags[i].textContent?.includes(id)) {
+              const nodesBefore = scriptTags[i].textContent?.split(id)[1];
+              if (nodesBefore) {
+                const nodesAfter = nodesBefore?.split(']);')[0];
+                if (nodesAfter) {
+                  const parser = nodesAfter + ']';
+                  const array = JSON5.parse(parser);
+                  setMcd(array);
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          throw error;
+        }
+      };
+
+      const processURL = async (url: string) => {
+        try {
+          const html = await fetchHTML(url);
+          await processHTML(html);
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      };
+
+      await processURL(targetUrl);
+    };
+
+    // Fetch data immediately
+    fetchData();
+
+    // Then fetch data every 20 minutes
+    const intervalId = setInterval(fetchData, 20 * 60 * 1000); // 20 minutes in milliseconds
+
+    // Clear interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
 
   const urlToOpen = openInApp
     ? `steam://url/SteamIDPage/${player.steamID64}`
     : player.steamInfo?.profileUrl;
+
+  player = readFromMcd(player, mcd);
 
   // Use "Player" as a verdict if the client isnt You
   const displayVerdict = player.isSelf
@@ -77,6 +155,7 @@ const Player = ({
 
       e.preventDefault();
     }
+
     document.addEventListener('mousedown', preventDefault);
 
     return () => document.removeEventListener('mousedown', preventDefault);
