@@ -304,7 +304,7 @@ const Player = ({
             />
             <div
               className={`text-ellipsis overflow-hidden whitespace-nowrap select-none ${
-                disconnected ? 'greyscale' : ''
+                disconnected ? 'disconnected' : ''
               }`}
             >
               {displayName}
@@ -322,21 +322,21 @@ const Player = ({
         </div>
         <div
           className={`flex flex-wrap justify-center bottom-[1px] relative ml-1 ${
-            disconnected ? 'greyscale' : ''
+            disconnected ? 'disconnected' : ''
           }`}
         >
           {buildIconList(player, cheatersInLobby)}
         </div>
         {/* <div
           className={`player-status hidden xs:[display:unset]  text-ellipsis overflow-hidden whitespace-nowrap ${
-            disconnected ? 'greyscale' : ''
+            disconnected ? 'disconnected' : ''
           }`}
         >
           {displayStatus}
         </div> */}
         <div
           className={`player-time hidden xs:[display:unset]  text-ellipsis overflow-hidden whitespace-nowrap ${
-            disconnected ? 'greyscale' : ''
+            disconnected ? 'disconnected' : ''
           }`}
         >
           {displayTime}
